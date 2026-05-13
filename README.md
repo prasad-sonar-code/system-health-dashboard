@@ -36,7 +36,12 @@ python3 app.py
 http://localhost:8080
 ```
 
-## 📁 Project Structure##
+## 📁 Project Structure ##
+ system-health-dashboard/
+├── app.py              # Flask backend + API
+└── templates/
+└── index.html      # Dashboard frontend
+
 
 ## 👤 Author
 
