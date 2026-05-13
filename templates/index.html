@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        h1 { text-align: center; color: #38bdf8; margin-bottom: 30px; font-size: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .card { background: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #334155; }
+        .card h2 { color: #94a3b8; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .value { font-size: 2.5rem; font-weight: bold; color: #38bdf8; }
+        .subtitle { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
+        .bar-bg { background: #334155; border-radius: 8px; height: 10px; margin-top: 16px; }
+        .bar { height: 10px; border-radius: 8px; transition: width 0.5s ease; }
+        .bar-cpu { background: #38bdf8; }
+        .bar-mem { background: #a78bfa; }
+        .bar-disk { background: #34d399; }
+        .timestamp { text-align: center; color: #475569; margin-top: 30px; font-size: 0.85rem; }
+        .status { display: inline-block; width: 8px; height: 8px; background: #34d399; border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    </style>
+</head>
+<body>
+    <h1><span class="status"></span>System Health Dashboard</h1>
+    
+    <div class="grid">
+        <div class="card">
+            <h2>CPU Usage</h2>
+            <div class="value" id="cpu">--%</div>
+            <div class="subtitle">Current processor load</div>
+            <div class="bar-bg"><div class="bar bar-cpu" id="cpu-bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="card">
+            <h2>Memory Usage</h2>
+            <div class="value" id="memory">--%</div>
+            <div class="subtitle" id="memory-detail">-- GB used of -- GB</div>
+            <div class="bar-bg"><div class="bar bar-mem" id="memory-bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="card">
+            <h2>Disk Usage</h2>
+            <div class="value" id="disk">--%</div>
+            <div class="subtitle" id="disk-detail">-- GB used of -- GB</div>
+            <div class="bar-bg"><div class="bar bar-disk" id="disk-bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="card">
+            <h2>Network I/O</h2>
+            <div class="value" id="net-sent" style="font-size:1.8rem">-- MB</div>
+            <div class="subtitle">Sent</div>
+            <div class="value" id="net-recv" style="font-size:1.8rem; color:#a78bfa; margin-top:8px">-- MB</div>
+            <div class="subtitle">Received</div>
+        </div>
+    </div>
+
+    <div class="timestamp">Last updated: <span id="timestamp">--</span> • Refreshes every 3 seconds</div>
+
+    <script>
+        function updateStats() {
+            fetch('/api/stats')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('cpu').textContent = data.cpu_percent + '%';
+                    document.getElementById('cpu-bar').style.width = data.cpu_percent + '%';
+                    document.getElementById('memory').textContent = data.memory_percent + '%';
+                    document.getElementById('memory-bar').style.width = data.memory_percent + '%';
+                    document.getElementById('memory-detail').textContent = data.memory_used + ' GB used of ' + data.memory_total + ' GB';
+                    document.getElementById('disk').textContent = data.disk_percent + '%';
+                    document.getElementById('disk-bar').style.width = data.disk_percent + '%';
+                    document.getElementById('disk-detail').textContent = data.disk_used + ' GB used of ' + data.disk_total + ' GB';
+                    document.getElementById('net-sent').textContent = data.net_sent + ' MB';
+                    document.getElementById('net-recv').textContent = data.net_recv + ' MB';
+                    document.getElementById('timestamp').textContent = data.timestamp;
+                });
+        }
+        updateStats();
+        setInterval(updateStats, 3000);
+    </script>
+</body>
+</html>
